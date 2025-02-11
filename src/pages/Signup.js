@@ -36,7 +36,7 @@ const Signup = () => {
     if (passwordError) return; // Prevent form submission if passwords don't match
 
     try {
-      await axios.post("http://localhost:5000/signup", formData);
+      await axios.post("https://loginsignupbackend-th96.onrender.com", formData);
       alert("Signup successful! Please log in.");
       navigate("/login");
     } catch (error) {
