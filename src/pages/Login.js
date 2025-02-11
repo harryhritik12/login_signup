@@ -1,27 +1,51 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message);
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      navigate("/dashboard"); // Redirect to dashboard after login
+    } catch (error) {
+      setError("Server error. Please try again later.");
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-xl transform transition-all hover:scale-105 hover:shadow-2xl">
+      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-xl">
         <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-6">
           Login to your account
         </h2>
+
+        {error && <p className="text-red-500 text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -30,7 +54,7 @@ const Login = () => {
               type="email"
               name="email"
               placeholder="Enter your email"
-              className="w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transform transition-all hover:shadow-md"
+              className="w-full px-4 py-3 border rounded-lg"
               onChange={handleChange}
               required
             />
@@ -42,48 +66,20 @@ const Login = () => {
               type="password"
               name="password"
               placeholder="Enter your password"
-              className="w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transform transition-all hover:shadow-md"
+              className="w-full px-4 py-3 border rounded-lg"
               onChange={handleChange}
               required
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input type="checkbox" id="rememberMe" className="mr-2" />
-              <label htmlFor="rememberMe" className="text-gray-600">Remember me</label>
-            </div>
-            <Link to="/forgot-password" className="text-blue-500 hover:underline">Forgot password?</Link>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 hover:shadow-lg"
-          >
+          <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg">
             Sign In
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600">Or continue with</p>
-          <div className="flex justify-center mt-2">
-            <button className="flex items-center px-4 py-3 border rounded-lg shadow-sm hover:bg-gray-200 transition duration-200 transform hover:scale-105 hover:shadow-md">
-              <img
-                src="https://www.svgrepo.com/show/303108/google-icon-logo.svg"
-                alt="Google"
-                className="h-6 w-6 mr-2"
-              />
-              Google
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-blue-500 hover:underline">
-              Sign up
-            </Link>
+          <p className="text-gray-600">Don't have an account?{" "}
+            <Link to="/signup" className="text-blue-500 hover:underline">Sign up</Link>
           </p>
         </div>
       </div>
