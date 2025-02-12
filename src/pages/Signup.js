@@ -15,25 +15,24 @@ const Signup = () => {
     dob: "",
   });
 
-  const [passwordError, setPasswordError] = useState(""); // State for password mismatch error
+  const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Validate password in real-time (without clicking submit)
   useEffect(() => {
     if (formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword) {
       setPasswordError("Passwords do not match!");
     } else {
-      setPasswordError(""); // Clear error when passwords match
+      setPasswordError("");
     }
-  }, [formData.password, formData.confirmPassword]); // Runs when either password field changes
+  }, [formData.password, formData.confirmPassword]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (passwordError) return; // Prevent form submission if passwords don't match
+    if (passwordError) return;
 
     try {
       await axios.post("https://loginsignupbackend-th96.onrender.com/signup", formData);
@@ -68,16 +67,13 @@ const Signup = () => {
               className="w-2/3 px-3 py-2 border rounded-lg" onChange={handleChange} required />
           </div>
 
-          {/* Password Field */}
           <input type="password" name="password" placeholder="Password"
             className="w-full px-3 py-2 border rounded-lg" onChange={handleChange} required />
 
-          {/* Confirm Password Field */}
           <input type="password" name="confirmPassword" placeholder="Confirm Password"
             className={`w-full px-3 py-2 border rounded-lg ${passwordError ? "border-red-500" : ""}`}
             onChange={handleChange} required />
 
-          {/* ✅ Show password mismatch error in real time */}
           {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
 
           <div className="flex space-x-2">
@@ -87,8 +83,11 @@ const Signup = () => {
               <option value="female">Female</option>
               <option value="other">Other</option>
             </select>
-            <input type="date" name="dob"
-              className="w-1/2 px-3 py-2 border rounded-lg" onChange={handleChange} required />
+            <div className="w-1/2">
+              <label className="block text-sm font-medium text-gray-700 mb-1"> Date of Birth</label>
+              <input type="date" name="dob"
+                className="w-full px-3 py-2 border rounded-lg" onChange={handleChange} required />
+            </div>
           </div>
 
           <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg">
