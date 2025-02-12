@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +18,7 @@ const Signup = () => {
   });
 
   const [passwordError, setPasswordError] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -30,12 +33,13 @@ const Signup = () => {
     }
   }, [formData.password, formData.confirmPassword]);
 
+  // Handle email/password signup
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (passwordError) return;
 
     try {
-      await axios.post("https://loginsignupbackend-th96.onrender.com/signup", formData);
+      await axios.post("https://your-backend.onrender.com/signup", formData);
       alert("Signup successful! Please log in.");
       navigate("/login");
     } catch (error) {
@@ -43,11 +47,43 @@ const Signup = () => {
     }
   };
 
+  // Handle Google Signup
+  const handleGoogleSuccess = async (response) => {
+    try {
+      const decoded = jwtDecode(response.credential); // Decode Google token
+      const googleUser = {
+        email: decoded.email,
+        firstName: decoded.given_name,
+        lastName: decoded.family_name,
+        googleId: decoded.sub, // Unique Google ID
+      };
+
+      // Send Google user data to the backend
+      const res = await axios.post("https://your-backend.onrender.com/auth/google", googleUser);
+
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        alert("Google Signup successful!");
+        navigate("/dashboard");
+      } else {
+        alert("Google Signup failed!");
+      }
+    } catch (err) {
+      alert("Google authentication failed");
+    }
+  };
+
+  // Handle Google Signup Failure
+  const handleGoogleFailure = () => {
+    alert("Google Signup failed. Please try again.");
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="w-full max-w-sm bg-white p-6 rounded-xl shadow-xl">
         <h2 className="text-2xl font-extrabold text-center text-gray-800 mb-4">Create an Account</h2>
 
+        {/* Traditional Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex space-x-2">
             <input type="text" name="firstName" placeholder="First Name"
@@ -84,7 +120,7 @@ const Signup = () => {
               <option value="other">Other</option>
             </select>
             <div className="w-1/2">
-              <label className="block text-sm font-medium text-gray-700 mb-1"> Date of Birth</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
               <input type="date" name="dob"
                 className="w-full px-3 py-2 border rounded-lg" onChange={handleChange} required />
             </div>
@@ -94,6 +130,11 @@ const Signup = () => {
             Sign Up
           </button>
         </form>
+
+        {/* Google Signup Button */}
+        <div className="mt-4">
+          <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleFailure} />
+        </div>
 
         <div className="mt-4 text-center">
           <p className="text-gray-600">Already have an account? <Link to="/login" className="text-blue-500">Log in</Link></p>

@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -18,7 +17,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await fetch("https://loginsignupbackend-th96.onrender.com/login", {
+      const response = await fetch("https://your-backend.onrender.com/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -32,10 +31,45 @@ const Login = () => {
       }
 
       localStorage.setItem("token", data.token);
-      navigate("/dashboard"); // Redirect to dashboard after login
+      navigate("/dashboard");
     } catch (error) {
       setError("Server error. Please try again later.");
     }
+  };
+
+  // Handle Google Login Success
+  const handleGoogleSuccess = async (response) => {
+    try {
+      const decoded = jwtDecode(response.credential); // Decode JWT response
+      const googleUser = {
+        email: decoded.email,
+        firstName: decoded.given_name,
+        lastName: decoded.family_name,
+        googleId: decoded.sub,
+      };
+
+      const res = await fetch("https://your-backend.onrender.com/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(googleUser),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message);
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Google authentication failed");
+    }
+  };
+
+  // Handle Google Login Failure
+  const handleGoogleFailure = () => {
+    setError("Google login failed. Please try again.");
   };
 
   return (
@@ -48,34 +82,17 @@ const Login = () => {
         {error && <p className="text-red-500 text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-lg font-medium text-gray-700">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              className="w-full px-4 py-3 border rounded-lg"
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-lg font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              className="w-full px-4 py-3 border rounded-lg"
-              onChange={handleChange}
-              required
-            />
-          </div>
-
+          <input type="email" name="email" placeholder="Email" className="w-full px-4 py-3 border rounded-lg" onChange={handleChange} required />
+          <input type="password" name="password" placeholder="Password" className="w-full px-4 py-3 border rounded-lg" onChange={handleChange} required />
           <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg">
             Sign In
           </button>
         </form>
+
+        {/* Google Login Button */}
+        <div className="mt-6 text-center">
+          <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleFailure} />
+        </div>
 
         <div className="mt-6 text-center">
           <p className="text-gray-600">Don't have an account?{" "}
