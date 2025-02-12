@@ -39,7 +39,7 @@ const Signup = () => {
     if (passwordError) return;
 
     try {
-      await axios.post("https://your-backend.onrender.com/signup", formData);
+      await axios.post("https://loginsignupbackend-th96.onrender.com/signup", formData);
       alert("Signup successful! Please log in.");
       navigate("/login");
     } catch (error) {
@@ -59,7 +59,7 @@ const Signup = () => {
       };
 
       // Send Google user data to the backend
-      const res = await axios.post("https://your-backend.onrender.com/auth/google", googleUser);
+      const res = await axios.post("https://loginsignupbackend-th96.onrender.com/auth/google", googleUser);
 
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);

@@ -17,7 +17,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await fetch("https://your-backend.onrender.com/login", {
+      const response = await fetch("https://loginsignupbackend-th96.onrender.com/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -48,7 +48,7 @@ const Login = () => {
         googleId: decoded.sub,
       };
 
-      const res = await fetch("https://your-backend.onrender.com/auth/google", {
+      const res = await fetch("https://loginsignupbackend-th96.onrender.com/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(googleUser),
