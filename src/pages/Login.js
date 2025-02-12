@@ -48,7 +48,7 @@ const Login = () => {
         googleId: decoded.sub,
       };
 
-      const res = await fetch("https://loginsignupbackend-th96.onrender.com/google", {
+      const res = await fetch("https://loginsignupbackend-th96.onrender.com/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(googleUser),
