@@ -50,19 +50,17 @@ const Signup = () => {
   // Handle Google Signup
   const handleGoogleSuccess = async (response) => {
     try {
-      const decoded = jwtDecode(response.credential);
+      const decoded = jwtDecode(response.credential); // Decode Google token
       const googleUser = {
         email: decoded.email,
         firstName: decoded.given_name,
         lastName: decoded.family_name,
-        googleId: decoded.sub,
+        googleId: decoded.sub, // Unique Google ID
       };
 
-      // Send Google user data to the backend for signup
-      const res = await axios.post("https://loginsignupbackend-th96.onrender.com/auth/google/signup", googleUser, {
-        headers: { "Content-Type": "application/json" }
-      });
-      
+      // Send Google user data to the backend
+      const res = await axios.post("https://loginsignupbackend-th96.onrender.com/auth/google", googleUser);
+
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
         alert("Google Signup successful!");
@@ -97,6 +95,14 @@ const Signup = () => {
           <input type="email" name="email" placeholder="Email"
             className="w-full px-3 py-2 border rounded-lg" onChange={handleChange} required />
 
+          <div className="flex space-x-2">
+            <select name="countryCode" className="w-1/3 px-3 py-2 border rounded-lg" onChange={handleChange}>
+              <option value="+91">+91 (IN)</option>
+            </select>
+            <input type="text" name="mobile" placeholder="Mobile"
+              className="w-2/3 px-3 py-2 border rounded-lg" onChange={handleChange} required />
+          </div>
+
           <input type="password" name="password" placeholder="Password"
             className="w-full px-3 py-2 border rounded-lg" onChange={handleChange} required />
 
@@ -105,6 +111,20 @@ const Signup = () => {
             onChange={handleChange} required />
 
           {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
+
+          <div className="flex space-x-2">
+            <select name="gender" className="w-1/2 px-3 py-2 border rounded-lg" onChange={handleChange}>
+              <option value="">Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+            <div className="w-1/2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+              <input type="date" name="dob"
+                className="w-full px-3 py-2 border rounded-lg" onChange={handleChange} required />
+            </div>
+          </div>
 
           <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg">
             Sign Up

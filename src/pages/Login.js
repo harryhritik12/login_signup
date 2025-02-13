@@ -37,17 +37,18 @@ const Login = () => {
     }
   };
 
-  // Handle Google Login
+  // Handle Google Login Success
   const handleGoogleSuccess = async (response) => {
     try {
-      const decoded = jwtDecode(response.credential);
+      const decoded = jwtDecode(response.credential); // Decode JWT response
       const googleUser = {
         email: decoded.email,
+        firstName: decoded.given_name,
+        lastName: decoded.family_name,
         googleId: decoded.sub,
       };
 
-      // Call Google login endpoint
-      const res = await fetch("https://loginsignupbackend-th96.onrender.com/auth/google/login", {
+      const res = await fetch("https://loginsignupbackend-th96.onrender.com/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(googleUser),
@@ -83,11 +84,20 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <input type="email" name="email" placeholder="Email" className="w-full px-4 py-3 border rounded-lg" onChange={handleChange} required />
           <input type="password" name="password" placeholder="Password" className="w-full px-4 py-3 border rounded-lg" onChange={handleChange} required />
-          <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg">Sign In</button>
+          <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg">
+            Sign In
+          </button>
         </form>
 
+        {/* Google Login Button */}
         <div className="mt-6 text-center">
           <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleFailure} />
+        </div>
+
+        <div className="mt-6 text-center">
+          <p className="text-gray-600">Don't have an account?{" "}
+            <Link to="/signup" className="text-blue-500 hover:underline">Sign up</Link>
+          </p>
         </div>
       </div>
     </div>
