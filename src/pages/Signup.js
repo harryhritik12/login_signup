@@ -59,8 +59,10 @@ const Signup = () => {
       };
 
       // Send Google user data to the backend for signup
-      const res = await axios.post("https://loginsignupbackend-th96.onrender.com/auth/google/signup", googleUser);
-
+      const res = await axios.post("https://loginsignupbackend-th96.onrender.com/auth/google/signup", googleUser, {
+        headers: { "Content-Type": "application/json" }
+      });
+      
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
         alert("Google Signup successful!");
